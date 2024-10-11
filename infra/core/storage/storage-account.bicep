@@ -8,7 +8,7 @@ param tags object = {}
   'Hot'
   'Premium' ])
 param accessTier string = 'Hot'
-param allowBlobPublicAccess bool = true
+param allowBlobPublicAccess bool = false
 param allowCrossTenantReplication bool = true
 param allowSharedKeyAccess bool = true
 param containers array = []
@@ -29,7 +29,7 @@ param networkAcls object = {
   defaultAction: 'Allow'
 }
 @allowed([ 'Enabled', 'Disabled' ])
-param publicNetworkAccess string = 'Enabled'
+param publicNetworkAccess string = 'Disabled'
 param sku object = { name: 'Standard_LRS' }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -62,7 +62,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     resource container 'containers' = [for container in containers: {
       name: container.name
       properties: {
-        publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
+        publicAccess: allowBlobPublicAccess ? (container.?publicAccess ?? 'None') : 'None'
       }
     }]
   }

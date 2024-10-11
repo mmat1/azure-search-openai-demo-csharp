@@ -209,6 +209,15 @@ static async ValueTask UploadBlobsAndCreateIndexAsync(
         var url = await UploadBlobAsync(fileName, blobName, container);
         await embeddingService.EmbedImageBlobAsync(stream, url, imageName);
     }
+    // if it's a JSON file, upload it to blob storage and embed it.
+    else if (Path.GetExtension(fileName).Equals(".json", StringComparison.OrdinalIgnoreCase))
+    {
+        using var stream = File.OpenRead(fileName);
+        var blobName = BlobNameFromFilePage(fileName);
+        var url = await UploadBlobAsync(fileName, blobName, container);
+        await embeddingService.EmbedJSONBlobAsync(stream, url); // Assuming EmbedJSONBlobAsync method exists
+    }
+
     else
     {
         var blobName = BlobNameFromFilePage(fileName);
@@ -246,7 +255,7 @@ static string GetContentType(string fileName)
     {
         ".pdf" => "application/pdf",
         ".txt" => "text/plain",
-
+        ".json" => "application/json", // Added JSON content type
         _ => "application/octet-stream"
     };
 }

@@ -23,7 +23,11 @@ public interface IEmbedService
         string imageUrl,
         string imageName,
         CancellationToken ct = default);
-
+              
+    Task<bool> EmbedJSONBlobAsync(
+        Stream stream,
+        string url, 
+        CancellationToken ct = default); 
     Task CreateSearchIndexAsync(string searchIndexName, CancellationToken ct = default);
 
     Task EnsureSearchIndexAsync(string searchIndexName, CancellationToken ct = default);

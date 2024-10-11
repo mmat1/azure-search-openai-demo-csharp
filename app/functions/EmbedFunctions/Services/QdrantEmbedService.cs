@@ -15,6 +15,11 @@ internal sealed class QdrantEmbedService : IEmbedService
         throw new NotImplementedException();
     }
 
+    public Task<bool> EmbedJSONBlobAsync(Stream stream, string url, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<bool> EmbedPDFBlobAsync(Stream blobStream, string blobName) => throw new NotImplementedException();
 
     public Task EnsureSearchIndexAsync(string searchIndexName, CancellationToken ct = default)

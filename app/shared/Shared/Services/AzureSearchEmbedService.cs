@@ -2,6 +2,7 @@
 
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Azure;
 using Azure.AI.FormRecognizer.DocumentAnalysis;
@@ -29,6 +30,65 @@ public sealed partial class AzureSearchEmbedService(
 {
     [GeneratedRegex("[^0-9a-zA-Z_-]")]
     private static partial Regex MatchInSetRegex();
+
+     public async Task<bool> EmbedJSONBlobAsync(Stream jsonBlobStream, string blobName, CancellationToken ct = default)
+    {
+        try
+        {
+            await EnsureSearchIndexAsync(searchIndexName);
+            Console.WriteLine($"Embedding JSON blob '{blobName}'");
+
+            using var reader = new StreamReader(jsonBlobStream);
+            var jsonContent = await reader.ReadToEndAsync();
+
+            // Process the JSON content
+            var sections = CreateSectionsFromJson(jsonContent, blobName);
+
+            var infoLoggingEnabled = logger?.IsEnabled(LogLevel.Information);
+            if (infoLoggingEnabled is true)
+            {
+                logger?.LogInformation("""
+                Indexing sections from '{BlobName}' into search index '{SearchIndexName}'
+                """,
+                    blobName,
+                    searchIndexName);
+            }
+
+            await IndexSectionsAsync(sections);
+
+            return true;
+        }
+        catch (Exception exception)
+        {
+            logger?.LogError(
+                exception, "Failed to embed JSON blob '{BlobName}'", blobName);
+
+            throw;
+        }
+    }
+
+    private IEnumerable<Section> CreateSectionsFromJson(string jsonContent, string blobName)
+    {
+        // Assuming the JSON content is a simple string array for this example
+        var jsonArray = JsonSerializer.Deserialize<string[]>(jsonContent);
+        if (jsonArray == null)
+        {
+            throw new InvalidOperationException("Invalid JSON content");
+        }
+
+        var sections = new List<Section>();
+        for (int i = 0; i < jsonArray.Length; i++)
+        {
+            var sectionText = jsonArray[i];
+            sections.Add(new Section(
+                Id: MatchInSetRegex().Replace($"{blobName}-{i}", "_").TrimStart('_'),
+                Content: sectionText,
+                SourcePage: blobName, // JSON files don't have pages, so use blobName
+                SourceFile: blobName));
+        }
+
+        return sections;
+    }
 
     public async Task<bool> EmbedPDFBlobAsync(Stream pdfBlobStream, string blobName)
     {
@@ -494,5 +554,6 @@ public sealed partial class AzureSearchEmbedService(
             }
         }
     }
+
 
 }
