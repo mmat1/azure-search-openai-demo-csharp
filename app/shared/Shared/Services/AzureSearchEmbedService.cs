@@ -30,7 +30,13 @@ public sealed partial class AzureSearchEmbedService(
 {
     [GeneratedRegex("[^0-9a-zA-Z_-]")]
     private static partial Regex MatchInSetRegex();
-
+    /// <summary>
+    /// EmbedJSONBlobAsync
+    /// </summary>
+    /// <param name="jsonBlobStream"></param>
+    /// <param name="blobName"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
      public async Task<bool> EmbedJSONBlobAsync(Stream jsonBlobStream, string blobName, CancellationToken ct = default)
     {
         try
@@ -66,7 +72,13 @@ public sealed partial class AzureSearchEmbedService(
             throw;
         }
     }
-
+    /// <summary>
+    /// CreateSectionsFromJson
+    /// </summary>
+    /// <param name="jsonContent"></param>
+    /// <param name="blobName"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private IEnumerable<Section> CreateSectionsFromJson(string jsonContent, string blobName)
     {
         // Assuming the JSON content is a simple string array for this example
