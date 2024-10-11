@@ -18,14 +18,15 @@ if [ -z "$AZD_PREPDOCS_RAN" ] || [ "$AZD_PREPDOCS_RAN" = "false" ]; then
 
     pwd
 
-    args="--project "app/prepdocs/PrepareDocs/PrepareDocs.csproj" \
+    args="--project \"app/prepdocs/PrepareDocs/PrepareDocs.csproj\" \
       './data/*.pdf' \
-      --storageendpoint "$AZURE_STORAGE_BLOB_ENDPOINT" \
-      --container "$AZURE_STORAGE_CONTAINER" \
-      --searchendpoint "$AZURE_SEARCH_SERVICE_ENDPOINT" \
-      --searchindex "$AZURE_SEARCH_INDEX" \
-      --formrecognizerendpoint "$AZURE_FORMRECOGNIZER_SERVICE_ENDPOINT" \
-      --tenantid "$AZURE_TENANT_ID""
+      './data/*.json' \
+      --storageendpoint \"$AZURE_STORAGE_BLOB_ENDPOINT\" \
+      --container \"$AZURE_STORAGE_CONTAINER\" \
+      --searchendpoint \"$AZURE_SEARCH_SERVICE_ENDPOINT\" \
+      --searchindex \"$AZURE_SEARCH_INDEX\" \
+      --formrecognizerendpoint \"$AZURE_FORMRECOGNIZER_SERVICE_ENDPOINT\" \
+      --tenantid \"$AZURE_TENANT_ID\""
 
     # if USE_VISION and AZURE_COMPUTERVISION_SERVICE_ENDPOINT is set, add --computervisionendpoint "$AZURE_COMPUTERVISION_SERVICE_ENDPOINT" to the command above
     if [ "$USE_VISION" = "true" ] && [ -n "$AZURE_COMPUTERVISION_SERVICE_ENDPOINT" ]; then
