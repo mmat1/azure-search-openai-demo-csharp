@@ -65,32 +65,43 @@ if ([string]::IsNullOrEmpty($env:AZD_PREPDOCS_RAN) -or $env:AZD_PREPDOCS_RAN -eq
     # - AZURE_TENANT_ID: The Azure Active Directory tenant ID.
     # 
     # The --verbose flag is used to enable detailed logging.
-    $dotnetArguments = "run --project app/prepdocs/PrepareDocs/PrepareDocs.csproj ./data/**/*.pdf ./data/**/*.json " +
-    "--storageendpoint $($env:AZURE_STORAGE_BLOB_ENDPOINT) " +
-    "--container $($env:AZURE_STORAGE_CONTAINER) " +
-    "--searchendpoint $($env:AZURE_SEARCH_SERVICE_ENDPOINT) " +
-    "--searchindex $($env:AZURE_SEARCH_INDEX) " +
-    "--formrecognizerendpoint $($env:AZURE_FORMRECOGNIZER_SERVICE_ENDPOINT) " +
-    "--tenantid $($env:AZURE_TENANT_ID) " +
-    "--verbose"
+    $commonArguments = @(
+        "--storageendpoint $($env:AZURE_STORAGE_BLOB_ENDPOINT)"
+        "--container $($env:AZURE_STORAGE_CONTAINER)"
+        "--searchendpoint $($env:AZURE_SEARCH_SERVICE_ENDPOINT)"
+        "--searchindex $($env:AZURE_SEARCH_INDEX)"
+        "--formrecognizerendpoint $($env:AZURE_FORMRECOGNIZER_SERVICE_ENDPOINT)"
+        "--tenantid $($env:AZURE_TENANT_ID)"
+        "--verbose"
+    )
 
     if ($env:AZURE_COMPUTERVISION_SERVICE_ENDPOINT -and $env:USE_VISION) {
         Write-Host "Using GPT-4 Vision"
-        $dotnetArguments += " --computervisionendpoint $($env:AZURE_COMPUTERVISION_SERVICE_ENDPOINT)"
+        $commonArguments += "--computervisionendpoint $($env:AZURE_COMPUTERVISION_SERVICE_ENDPOINT)"
     }
 
     if ($env:USE_AOAI -eq "true") {
         Write-Host "Using Azure OpenAI"
-        $dotnetArguments += " --openaiendpoint $($env:AZURE_OPENAI_ENDPOINT) "
-        $dotnetArguments += " --embeddingmodel $($env:AZURE_OPENAI_EMBEDDING_DEPLOYMENT) "
+        $commonArguments += "--openaiendpoint $($env:AZURE_OPENAI_ENDPOINT)"
+        $commonArguments += "--embeddingmodel $($env:AZURE_OPENAI_EMBEDDING_DEPLOYMENT)"
     }
-    else{
+    else {
         Write-Host "Using OpenAI"
-        $dotnetArguments += " --embeddingmodel $($env:OPENAI_EMBEDDING_DEPLOYMENT) "
+        $commonArguments += "--embeddingmodel $($env:OPENAI_EMBEDDING_DEPLOYMENT)"
     }
-    
-    Write-Host "dotnet $dotnetArguments"
-    $output = Invoke-ExternalCommand -Command "dotnet" -Arguments $dotnetArguments
+
+    $commonArgumentsString = $commonArguments -join " "
+
+    # Run for PDF files
+    $pdfArguments = "run --project app/prepdocs/PrepareDocs/PrepareDocs.csproj ./data/**/*.pdf $commonArgumentsString"
+    Write-Host "dotnet $pdfArguments"
+    $output = Invoke-ExternalCommand -Command "dotnet" -Arguments $pdfArguments
+    Write-Host $output
+
+    # Run for JSON files
+    $jsonArguments = "run --project app/prepdocs/PrepareDocs/PrepareDocs.csproj ./data/**/*.json $commonArgumentsString"
+    Write-Host "dotnet $jsonArguments"
+    $output = Invoke-ExternalCommand -Command "dotnet" -Arguments $jsonArguments
     Write-Host $output
 
     azd env set AZD_PREPDOCS_RAN "true"
