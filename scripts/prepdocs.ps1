@@ -52,6 +52,19 @@ if ([string]::IsNullOrEmpty($env:AZD_PREPDOCS_RAN) -or $env:AZD_PREPDOCS_RAN -eq
 
     Get-Location | Select-Object -ExpandProperty Path
 
+    # Constructs the arguments for running the .NET project that prepares documents for Azure services.
+    # The script processes PDF and JSON files located in the ./data/ directory.
+    # It uses various Azure service endpoints and settings provided through environment variables.
+    # 
+    # Environment Variables:
+    # - AZURE_STORAGE_BLOB_ENDPOINT: The endpoint for the Azure Storage Blob service.
+    # - AZURE_STORAGE_CONTAINER: The name of the Azure Storage container.
+    # - AZURE_SEARCH_SERVICE_ENDPOINT: The endpoint for the Azure Search service.
+    # - AZURE_SEARCH_INDEX: The name of the Azure Search index.
+    # - AZURE_FORMRECOGNIZER_SERVICE_ENDPOINT: The endpoint for the Azure Form Recognizer service.
+    # - AZURE_TENANT_ID: The Azure Active Directory tenant ID.
+    # 
+    # The --verbose flag is used to enable detailed logging.
     $dotnetArguments = "run --project app/prepdocs/PrepareDocs/PrepareDocs.csproj ./data/**/*.pdf ./data/**/*.json " +
     "--storageendpoint $($env:AZURE_STORAGE_BLOB_ENDPOINT) " +
     "--container $($env:AZURE_STORAGE_CONTAINER) " +

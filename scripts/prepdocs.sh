@@ -17,6 +17,19 @@ if [ -z "$AZD_PREPDOCS_RAN" ] || [ "$AZD_PREPDOCS_RAN" = "false" ]; then
     echo 'Running "PrepareDocs.dll"'
 
     pwd
+    # This script prepares documents for processing by a C# project.
+    # It sets up arguments for the PrepareDocs.csproj project, specifying the input files and various service endpoints.
+    # 
+    # Arguments:
+    # --project: Specifies the path to the C# project file (PrepareDocs.csproj).
+    # './data/*.pdf': Includes all PDF files in the data directory as input.
+    # './data/*.json': Includes all JSON files in the data directory as input.
+    # --storageendpoint: The endpoint for the Azure Storage Blob service.
+    # --container: The name of the Azure Storage container.
+    # --searchendpoint: The endpoint for the Azure Search service.
+    # --searchindex: The name of the Azure Search index.
+    # --formrecognizerendpoint: The endpoint for the Azure Form Recognizer service.
+    # --tenantid: The Azure Active Directory tenant ID.
 
     args="--project \"app/prepdocs/PrepareDocs/PrepareDocs.csproj\" \
       './data/*.pdf' \
