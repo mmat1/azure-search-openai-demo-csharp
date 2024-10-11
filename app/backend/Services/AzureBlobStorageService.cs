@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-
-namespace MinimalApi.Services;
+﻿namespace MinimalApi.Services;
 
 internal sealed class AzureBlobStorageService(BlobContainerClient container)
 {
@@ -10,7 +8,7 @@ internal sealed class AzureBlobStorageService(BlobContainerClient container)
     {
         try
         {
-            List<string> uploadedFiles = [];
+            List<string> uploadedFiles = new();
             foreach (var file in files)
             {
                 var fileName = file.FileName;
@@ -69,6 +67,21 @@ internal sealed class AzureBlobStorageService(BlobContainerClient container)
                         }
                     }
                 }
+                else if (Path.GetExtension(fileName).ToLower() is ".json")
+                {
+                    var blobName = BlobNameFromFilePage(fileName);
+                    var blobClient = container.GetBlobClient(blobName);
+                    if (await blobClient.ExistsAsync(cancellationToken))
+                    {
+                        continue;
+                    }
+
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders
+                    {
+                        ContentType = "application/json"
+                    }, cancellationToken: cancellationToken);
+                    uploadedFiles.Add(blobName);
+                }
             }
 
             if (uploadedFiles.Count is 0)
@@ -78,7 +91,7 @@ internal sealed class AzureBlobStorageService(BlobContainerClient container)
                     """);
             }
 
-            return new UploadDocumentsResponse([.. uploadedFiles]);
+            return new UploadDocumentsResponse(uploadedFiles);
         }
 #pragma warning disable CA1031 // Do not catch general exception types
         catch (Exception ex)
