@@ -22,7 +22,7 @@
                         Each file cannot exceed a file size of @(MaxIndividualFileSize.ToHumanReadableSize())
                     </MudText>
                     <MudFileUpload @ref="_fileUpload" T="IReadOnlyList<IBrowserFile>"
-                                   Accept=".pdf, .png, .jpg, .jpeg" MaximumFileCount="10" FilesChanged=@(files => StateHasChanged())
+                                   Accept=".pdf, .png, .jpg, .jpeg, .json" MaximumFileCount="10" FilesChanged=@(files => StateHasChanged())
                                    Required="true" RequiredError="You must select at least one file to upload.">
                         <ButtonTemplate>
                             <MudButton HtmlTag="label"
